@@ -1,0 +1,107 @@
+@import "tailwindcss";
+@import "@fontsource-variable/plus-jakarta-sans";
+
+/* Warna dipilih dengan kontras minimal 4,5:1 (WCAG AA) untuk teks kecil (dihitung 3 Nov 2026):
+   - emas #7a5a00: 6,38:1 di putih, 5,92:1 di krem; merah-bata #9b2c2c: 7,53:1 di putih;
+   - teks putih di kunyit #c2410c (tombol utama): 5,18:1; di hutan #0e3b2e: 12,47:1;
+   - prada #f6c453 hanya di atas latar gelap: 6,67:1 di merah-tua, 7,69:1 di hutan; teks tinta di prada 10,78:1;
+   - kunyit sebagai teks tautan di krem: 4,80:1.
+   Warna kategori (kat-*) dipakai dengan teks putih: 8,14–13,32:1. */
+@theme {
+  --font-sans: "Plus Jakarta Sans Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --color-emas: #7a5a00;
+  --color-merah-bata: #9b2c2c;
+  --color-krem: #faf6ee;
+
+  --color-merah-tua: #7a1416;
+  --color-merah-gelap: #5e0d0f;
+  --color-merah-pil: #93201f;
+  --color-hutan: #0e3b2e;
+  --color-hutan-muda: #1f5a45;
+  --color-kunyit: #c2410c;
+  --color-kunyit-gelap: #9a3412;
+  --color-prada: #f6c453;
+  --color-pasir: #efe7da;
+  --color-tinta: #1c1917;
+
+  --color-kat-kreasi: #6b1d3a;
+  --color-kat-penyambutan: #0e5a4a;
+  --color-kat-klasik: #6e3b16;
+  --color-kat-dasar: #163a5f;
+  --color-kat-ekspresi: #52154e;
+
+  --animate-muncul: muncul 0.28s ease-out both;
+  --animate-denyut: denyut 1s ease-out both;
+
+  @keyframes muncul {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes denyut {
+    0% {
+      opacity: 0;
+      transform: scale(1.6);
+    }
+    30% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+  }
+}
+
+body {
+  background-color: var(--color-krem);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Strip gulir mendatar tanpa batang gulir yang terlihat. */
+@utility tanpa-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Motif poleng: kotak hitam-putih kain Bali, dipakai sebagai garis hiasan tipis. */
+@utility poleng {
+  background: conic-gradient(#1c1917 25%, #faf6ee 0 50%, #1c1917 0 75%, #faf6ee 0) 0 0 / 12px 12px;
+}
+
+/* Latar hero: merah tua dengan cahaya lembut di kiri atas. */
+@utility latar-hero {
+  background-color: var(--color-merah-tua);
+  background-image: radial-gradient(circle at 18% 22%, rgb(160 32 34 / 0.55) 0%, transparent 48%);
+}
+
+/* Kubah lembut di bagian bawah kartu kategori dan sampul kelas. */
+@utility kubah {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  translate: -50% 0;
+  width: 118%;
+  height: 58%;
+  border-radius: 9999px 9999px 0 0;
+  background: rgb(255 255 255 / 0.09);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

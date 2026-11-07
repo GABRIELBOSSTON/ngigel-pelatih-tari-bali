@@ -1,0 +1,12 @@
+[
+ {
+  "url": "/latihan/tari-kreasi-janger",
+  "lebar": 390,
+  "tinggi": 844,
+  "tungguJs": "[...document.querySelectorAll('button')].some(b => b.textContent.includes('Mulai menari') && !b.disabled)",
+  "batasMs": 90000,
+  "tunggu": 2500,
+  "nama": "studio_hp",
+  "penuh": true
+ }
+]

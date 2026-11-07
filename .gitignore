@@ -1,0 +1,44 @@
+# Dependensi dan hasil build
+node_modules/
+dist/
+.vercel/
+
+# WASM MediaPipe disalin otomatis dari node_modules (scripts/salin-wasm.mjs)
+public/mediapipe/
+
+# Rahasia: hanya .env.example yang boleh masuk Git
+.env
+.env.*
+!.env.example
+
+# Video mentah (YouTube/guru) dan rekaman uji: tidak boleh masuk Git.
+# public/video-lokal/: video yang hanya untuk diputar di perangkat pengembang; tidak di-commit dan
+# tidak di-deploy (docs/05 bagian 4.6).
+public/video-lokal/
+referensi_mentah/
+rekaman_uji/
+# Keluaran alat uji (scripts/uji/): potret, riwayat, berkas MJPEG
+hasil_uji/
+*.mjpeg
+*.mp4
+*.webm
+*.mov
+*.mkv
+# Pengecualian: video guru yang memang tampil di situs publik, beserta kreditnya. Janger contoh masuk ke
+# sini atas keputusan ketua tim 7 Nov 2026 (docs/05 bagian 4.6).
+!public/video/*.mp4
+
+# Lain-lain (berkas editor dan sistem)
+.vscode/
+.idea/
+.claude/
+*.tmp
+.DS_Store
+Thumbs.db
+*.log
+coverage/
+
+# Dokumen internal tim tidak diunggah; hanya README.md (wajib panduan lomba, Lampiran B).
+*.md
+!/README.md
+docs/

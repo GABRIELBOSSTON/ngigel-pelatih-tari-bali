@@ -1,0 +1,38 @@
+{
+  "name": "ngigel",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Ngigel — pelatih tari Bali berbasis AI (AI Web Innovation Challenge, Bali DigiFest 2026)",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "node scripts/salin-wasm.mjs && vite",
+    "build": "node scripts/salin-wasm.mjs && tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "docs:sync": "node scripts/sync-docs.mjs",
+    "setup:model": "node scripts/unduh-model.mjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/plus-jakarta-sans": "5.3.0",
+    "@mediapipe/tasks-vision": "1.1.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-router": "7.18.4",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "4.3.3",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "tailwindcss": "4.3.3",
+    "typescript": "7.0.2",
+    "vite": "8.3.4",
+    "vitest": "5.0.5"
+  }
+}

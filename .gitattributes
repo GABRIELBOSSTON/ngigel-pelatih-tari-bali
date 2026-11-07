@@ -1,0 +1,9 @@
+# Akhir baris seragam (LF) di semua sistem operasi, supaya riwayat commit bersih di Windows.
+* text=auto eol=lf
+
+# Berkas biner: jangan diubah akhir barisnya
+*.task binary
+*.wasm binary
+*.png binary
+*.jpg binary
+*.ico binary

@@ -1,0 +1,30 @@
+[
+ {
+  "url": "/latihan/tari-kreasi-janger?mulai=40&akhir=70",
+  "lebar": 1440,
+  "tinggi": 1000,
+  "tungguJs": "[...document.querySelectorAll('button')].some(b => b.textContent.includes('Mulai menari') && !b.disabled)",
+  "batasMs": 90000,
+  "tunggu": 1000,
+  "potret": false,
+  "nama": "siap"
+ },
+ {
+  "aksi": "(async () => { const cam = document.querySelector('video[aria-label^=\"Kamera\"]'); const L = 30; const t0 = performance.now(); while (performance.now() - t0 < 35000) { if ((cam.currentTime % L) < 0.3) break; await new Promise(r => setTimeout(r, 20)); } [...document.querySelectorAll('button')].find(b => b.textContent.includes('Mulai menari')).click(); return cam.currentTime % L; })()",
+  "potret": false,
+  "nama": "klik_mulai"
+ },
+ {
+  "tungguJs": "document.body.innerText.includes('Dijeda: tubuh Anda tidak terlihat')",
+  "batasMs": 20000,
+  "nama": "jeda_otomatis",
+  "ambil": "({ jeda: document.body.innerText.includes('Dijeda: tubuh Anda tidak terlihat'), waktuVideo: document.querySelector('video[aria-label^=\"Video guru\"]')?.currentTime })"
+ },
+ {
+  "tungguJs": "!document.body.innerText.includes('Dijeda: tubuh Anda tidak terlihat') && [...document.querySelectorAll('button')].some(b => b.textContent.trim().endsWith('Jeda'))",
+  "batasMs": 30000,
+  "tunggu": 3000,
+  "nama": "lanjut_otomatis",
+  "ambil": "({ menari: [...document.querySelectorAll('button')].some(b => b.textContent.trim().endsWith('Jeda')), waktuVideo: document.querySelector('video[aria-label^=\"Video guru\"]')?.currentTime })"
+ }
+]

@@ -1,0 +1,72 @@
+// Nomor 33 titik tubuh MediaPipe Pose Landmarker.
+// "KIRI"/"KANAN" adalah kiri/kanan ORANG di video, bukan kiri/kanan layar.
+
+export const JUMLAH_TITIK_POSE = 33;
+
+export const POSE = {
+  HIDUNG: 0,
+  MATA_KIRI_DALAM: 1,
+  MATA_KIRI: 2,
+  MATA_KIRI_LUAR: 3,
+  MATA_KANAN_DALAM: 4,
+  MATA_KANAN: 5,
+  MATA_KANAN_LUAR: 6,
+  TELINGA_KIRI: 7,
+  TELINGA_KANAN: 8,
+  MULUT_KIRI: 9,
+  MULUT_KANAN: 10,
+  BAHU_KIRI: 11,
+  BAHU_KANAN: 12,
+  SIKU_KIRI: 13,
+  SIKU_KANAN: 14,
+  PERGELANGAN_KIRI: 15,
+  PERGELANGAN_KANAN: 16,
+  KELINGKING_KIRI: 17,
+  KELINGKING_KANAN: 18,
+  TELUNJUK_KIRI: 19,
+  TELUNJUK_KANAN: 20,
+  JEMPOL_KIRI: 21,
+  JEMPOL_KANAN: 22,
+  PINGGUL_KIRI: 23,
+  PINGGUL_KANAN: 24,
+  LUTUT_KIRI: 25,
+  LUTUT_KANAN: 26,
+  PERGELANGAN_KAKI_KIRI: 27,
+  PERGELANGAN_KAKI_KANAN: 28,
+  TUMIT_KIRI: 29,
+  TUMIT_KANAN: 30,
+  UJUNG_KAKI_KIRI: 31,
+  UJUNG_KAKI_KANAN: 32,
+} as const;
+
+/** Bagian tubuh untuk pewarnaan stickman; setiap bagian berisi pasangan titik yang disambung garis. */
+export const BAGIAN_TUBUH = {
+  lenganKiri: [
+    [POSE.BAHU_KIRI, POSE.SIKU_KIRI],
+    [POSE.SIKU_KIRI, POSE.PERGELANGAN_KIRI],
+  ],
+  lenganKanan: [
+    [POSE.BAHU_KANAN, POSE.SIKU_KANAN],
+    [POSE.SIKU_KANAN, POSE.PERGELANGAN_KANAN],
+  ],
+  badan: [
+    [POSE.BAHU_KIRI, POSE.BAHU_KANAN],
+    [POSE.BAHU_KIRI, POSE.PINGGUL_KIRI],
+    [POSE.BAHU_KANAN, POSE.PINGGUL_KANAN],
+    [POSE.PINGGUL_KIRI, POSE.PINGGUL_KANAN],
+  ],
+  tungkaiKiri: [
+    [POSE.PINGGUL_KIRI, POSE.LUTUT_KIRI],
+    [POSE.LUTUT_KIRI, POSE.PERGELANGAN_KAKI_KIRI],
+    [POSE.PERGELANGAN_KAKI_KIRI, POSE.TUMIT_KIRI],
+    [POSE.TUMIT_KIRI, POSE.UJUNG_KAKI_KIRI],
+  ],
+  tungkaiKanan: [
+    [POSE.PINGGUL_KANAN, POSE.LUTUT_KANAN],
+    [POSE.LUTUT_KANAN, POSE.PERGELANGAN_KAKI_KANAN],
+    [POSE.PERGELANGAN_KAKI_KANAN, POSE.TUMIT_KANAN],
+    [POSE.TUMIT_KANAN, POSE.UJUNG_KAKI_KANAN],
+  ],
+} as const satisfies Record<string, ReadonlyArray<readonly [number, number]>>;
+
+export type BagianTubuh = keyof typeof BAGIAN_TUBUH;

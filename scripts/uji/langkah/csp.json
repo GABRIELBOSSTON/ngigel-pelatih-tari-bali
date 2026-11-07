@@ -1,0 +1,30 @@
+[
+ {
+  "url": "/",
+  "lebar": 1440,
+  "tinggi": 900,
+  "tunggu": 1500,
+  "nama": "csp_beranda",
+  "ambil": "(async () => { const r = await fetch('/'); return { huruf: document.fonts.check('16px \"Plus Jakarta Sans Variable\"'), csp: (r.headers.get('content-security-policy') ?? '(tidak ada)').slice(0, 60), izin: r.headers.get('permissions-policy') }; })()"
+ },
+ {
+  "url": "/latihan/tari-kreasi-janger",
+  "tungguJs": "[...document.querySelectorAll('button')].some(b => b.textContent.includes('Mulai menari') && !b.disabled)",
+  "batasMs": 90000,
+  "tunggu": 3000,
+  "nama": "csp_studio",
+  "ambil": "({ status: document.querySelector('ul.absolute')?.innerText, videoGuruSiap: document.querySelector('video[aria-label^=\"Video guru\"]')?.readyState })"
+ },
+ {
+  "url": "/tentang",
+  "tunggu": 1500,
+  "nama": "csp_tentang",
+  "ambil": "document.querySelector('h1')?.innerText"
+ },
+ {
+  "url": "/hasil/bagikan#d=1.rusak",
+  "tunggu": 1500,
+  "nama": "csp_bagikan_rusak",
+  "ambil": "document.querySelector('h1')?.innerText"
+ }
+]

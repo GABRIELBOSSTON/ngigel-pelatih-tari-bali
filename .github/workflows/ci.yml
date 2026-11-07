@@ -1,0 +1,22 @@
+# Pemeriksaan otomatis setiap push dan pull request: tipe, uji, dan build.
+# Paket dipasang tanpa menjalankan skrip instalasi (--ignore-scripts).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  periksa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.12.0"
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run build

@@ -1,0 +1,57 @@
+[
+ {
+  "url": "/",
+  "lebar": 1440,
+  "tinggi": 900,
+  "tunggu": 1500,
+  "nama": "beranda_atas"
+ },
+ {
+  "url": "/",
+  "lebar": 1440,
+  "tinggi": 900,
+  "tunggu": 1200,
+  "nama": "beranda_penuh",
+  "penuh": true
+ },
+ {
+  "url": "/latihan/tari-kreasi-janger",
+  "lebar": 1440,
+  "tinggi": 1000,
+  "tungguJs": "[...document.querySelectorAll('button')].some(b => b.textContent.includes('Mulai menari') && !b.disabled)",
+  "batasMs": 90000,
+  "tunggu": 2500,
+  "nama": "studio_persiapan",
+  "penuh": true
+ },
+ {
+  "url": "/latihan/tari-pendet",
+  "lebar": 1440,
+  "tinggi": 900,
+  "tunggu": 3000,
+  "nama": "studio_video_contoh"
+ },
+ {
+  "url": "/riwayat",
+  "lebar": 1440,
+  "tinggi": 900,
+  "tunggu": 1000,
+  "nama": "riwayat"
+ },
+ {
+  "url": "/tentang",
+  "lebar": 1440,
+  "tinggi": 900,
+  "tunggu": 1500,
+  "nama": "tentang",
+  "penuh": true
+ },
+ {
+  "url": "/",
+  "lebar": 390,
+  "tinggi": 844,
+  "tunggu": 1200,
+  "nama": "beranda_hp",
+  "penuh": true
+ }
+]

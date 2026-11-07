@@ -1,0 +1,13 @@
+[
+ {
+  "url": "/latihan/tari-kreasi-janger?mulai=40&akhir=70",
+  "lebar": 1440,
+  "tinggi": 1000,
+  "tungguJs": "[...document.querySelectorAll('button')].some(b => b.textContent.includes('Mulai menari') && !b.disabled) || document.body.innerText.includes('Belum ada orang terbaca')",
+  "batasMs": 90000,
+  "tunggu": 1500,
+  "potret": false,
+  "nama": "tajam",
+  "ambil": "(async () => { const v = document.querySelector('video[aria-label^=\"Kamera\"]'); const hasil = {}; for (const [W, H] of [[160, 90], [320, 180]]) { const c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d', { willReadFrequently: true }); const nilai = []; for (let k = 0; k < 5; k++) { x.drawImage(v, 0, 0, W, H); const d = x.getImageData(0, 0, W, H).data; const g = new Float32Array(W * H); for (let i = 0; i < W * H; i++) g[i] = 0.299 * d[4 * i] + 0.587 * d[4 * i + 1] + 0.114 * d[4 * i + 2]; let s = 0, s2 = 0, n = 0, t = 0, t2 = 0; for (let y = 1; y < H - 1; y++) for (let xx = 1; xx < W - 1; xx++) { const i = y * W + xx; const l = 4 * g[i] - g[i - 1] - g[i + 1] - g[i - W] - g[i + W]; s += l; s2 += l * l; t += g[i]; t2 += g[i] * g[i]; n++; } const m = s / n, mt = t / n; nilai.push({ lap: +(s2 / n - m * m).toFixed(1), kontras: +(t2 / n - mt * mt).toFixed(1) }); await new Promise(r => setTimeout(r, 700)); } hasil[W + 'x' + H] = nilai; } return hasil; })()"
+ }
+]
