@@ -1,132 +1,210 @@
-# Ngigel: Pelatih Tari Bali Berbasis AI
+# Ngigel — Pelatih Tari Bali Berbasis AI
 
-> **Status (3 November 2026): etalase, latihan bersama video guru, penilaian, seledet, pelatih suara, bagikan hasil, dan riwayat berjalan.** Kalimat koreksi oleh LLM belum dibangun (sekarang templat). Untuk AI Web Innovation Challenge — Bali DigiFest 2026.
-> Bagian bertanda *(diisi)* dilengkapi saat MVP selesai. Daftar "Key Features" hanya memuat fitur yang **sudah berfungsi**.
+**Berlatih tari Bali di rumah, dikoreksi seperti di sanggar.**
+Murid menari di depan webcam bersama video guru. AI di peramban membaca tubuh, jari, dan lirikan mata (*seledet*), lalu memberi nilai dan koreksi menurut **empat unsur dasar tari Bali**: agem, tandang, tangkis, dan tangkep.
 
-## Description
-Ngigel adalah aplikasi web tempat murid berlatih tari Bali di depan webcam. AI di peramban membaca **sikap tubuh, perpindahan, gerak tangan dan jari, serta ekspresi dan lirikan mata (seledet)**, lalu membandingkannya dengan video guru. Hasilnya berupa nilai dan koreksi menurut **empat unsur dasar tari Bali**:
-- **agem**: sikap pokok;
-- **tandang**: perpindahan gerak;
-- **tangkis**: peralihan antarsikap;
-- **tangkep**: ekspresi;
+> AI Web Innovation Challenge — Bali DigiFest 2026 · Bidang Pendidikan · Tim Sekaa Kode
+> Versi yang dinilai: tag `v1.0-submission`
 
-ditambah tempo.
+![Studio latihan: video guru di kiri, kamera murid di kanan dengan garis tubuh berwarna dan skor kemiripan](tangkapan-layar/02-studio.jpg)
 
-## Problem & Target User
-Murid tari Bali hanya mendapat koreksi gerak saat bertemu guru di sanggar. Saat berlatih sendiri dari video, tidak ada yang memberi tahu bagian mana yang salah.
-- **Pengguna utama:** murid sanggar dan pelajar yang berlatih gerak dasar di rumah.
-- **Pengguna kedua:** guru sanggar yang ingin muridnya berlatih dengan acuan darinya.
+<sub>Semua video di tangkapan layar sengaja **diburamkan** untuk melindungi wajah penari. Garis tubuh, warna, skor, dan petunjuk adalah keluaran AI yang asli.</sub>
 
-## Key Features
-**Sudah berfungsi:**
-- **Etalase kelas** (`/`): 18 kelas dalam 4 kategori (kreasi, penyambutan, pertunjukan, gerak dasar), dengan pencarian, saringan tingkat, dan pratinjau video. Deskripsi tiap tari punya sumber tertulis (halaman Tentang)
-- **Studio latihan** (`/latihan/:kelasId`):
-  - video guru di kiri dan kamera di kanan, keduanya seperti cermin;
-  - hitung mundur 5 detik, atau **mulai tanpa menyentuh laptop** dengan mengangkat kedua tangan di atas kepala;
-  - garis tubuh **hijau/kuning/merah**, kemiripan 0–100, dan **petunjuk perbaikan** ("Angkat lengan kanan lebih tinggi");
-  - **pelatih suara** berbahasa Indonesia yang mengucapkan petunjuk, karena murid berdiri 2–3 meter dari layar;
-  - **jeda otomatis** saat tubuh keluar bingkai, lanjut sendiri saat kembali; saran bila ruangan gelap atau perangkat lambat;
-  - **gerbang kualitas kamera**: bila tubuh terlalu kecil di layar, gambar gelap, atau buram, garis menjadi abu-abu (murid tidak disalahkan karena kamera), muncul saran "Maju 1–2 langkah" / "Tambah cahaya" / "Bersihkan lensa", dan frame itu tidak dinilai;
-  - **kartu kesalahan berulang**: bila gerak yang sama salah berkali-kali, kartu besar membandingkan guru dan murid, misalnya *Guru: tangan kanan di atas, tangan kiri di bawah · Anda: kebalik → Tukar*, atau *"Percepat: gerak Anda ±1,5 detik di belakang guru"* bila murid tertinggal;
-  - panduan 3 langkah (letak laptop, jarak, cahaya) pada kunjungan pertama;
-  - tanda **"Seledet!"** saat guru melirik;
-  - rentang latihan per babak; kecepatan putar 0,5×/0,75×/1×
-- **Penilaian setelah menari:**
-  - segmentasi pokok/peralihan/perpindahan;
-  - penyelarasan tempo dengan **DTW**;
-  - nilai **agem, tandang, tangkis, tangkep**;
-  - **seledet** dihitung per kejadian ("8 dari 10 tepat"), termasuk arah lirikannya;
-  - tiga koreksi (templat), hanya untuk selisih yang cukup besar;
-  - keterlambatan rata-rata, garis kemiripan per detik, dan tombol **latih bagian tersulit**
-- **Bagikan ke guru** tanpa server: tautan hasil (isi di bagian `#`, tidak terkirim ke server) dan kartu hasil PNG
-- **Riwayat** di peramban (tanpa server) dengan **garis kemajuan per kelas**, bisa dihapus kapan saja
-- **Untuk Guru:** video gerak → JSON pelajaran, diproses di perangkat
-- **Keamanan:** CSP tanpa sumber luar dan kamera hanya untuk situs sendiri (`vercel.json`)
-- Uji ujung ke ujung di Chrome dengan kamera palsu berisi video tari (termasuk kamera jauh, gelap, buram, dan murid yang kiri–kanannya tertukar), bisa diulang dengan `scripts/uji/` (docs/09); 141 uji otomatis; CI (typecheck, uji, build)
+---
 
-**Belum:**
-- Video untuk kelas selain Tari Kreasi Janger (kelas lain sementara memakai video contoh, dengan pemberitahuan)
-- Kalimat koreksi oleh LLM
-- Kalibrasi nilai dengan penari sungguhan
+## 1. Description
 
-## Tech Stack
-React 19 · TypeScript 7 · Vite 8 · Tailwind CSS 4 · React Router 7 · MediaPipe Tasks Vision · Zod · Vitest · GitHub Actions. Tahap fitur: Vercel Functions (LLM). Tahap final: Supabase.
+Ngigel adalah **"guru yang melihat"** saat murid berlatih sendiri:
 
-Versi terkunci dan alasannya: [docs/01_TECH_STACK.md](docs/01_TECH_STACK.md).
+1. Murid memilih kelas di etalase, lalu berdiri di depan kamera.
+2. Saat menari, garis tubuh berwarna **hijau / kuning / merah** per bagian tubuh. Ada angka kemiripan 0–100 dan satu petunjuk singkat ("Turunkan lengan kiri") yang juga **diucapkan**.
+3. Selesai menari, keluar nilai **agem, tandang, tangkis, tangkep**, jumlah **seledet** yang tepat, tiga koreksi utama, dan tombol untuk mengulang bagian tersulit.
 
-## AI Implementation
-| Bagian | Model/metode | Input → Output |
+Seluruh AI berjalan **di perangkat pengguna**. Video kamera tidak pernah dikirim ke server, dan tidak perlu instalasi maupun login.
+
+## 2. Problem & Target User
+
+Tari Bali diwariskan dengan cara **meniru guru lalu dikoreksi langsung oleh guru**. Di luar jam sanggar, murid berlatih dari video yang tidak bisa melihat mereka, sehingga kesalahan (lutut kurang turun, jari kurang terbuka, seledet terlambat) justru ikut terlatih.
+
+| Pengguna | Kebutuhan |
+|---|---|
+| **Murid sanggar dan pelajar** (utama) | Tahu bagian mana yang salah dan cara memperbaikinya, tanpa harus mendekat ke laptop |
+| **Guru sanggar** | Murid berlatih dengan acuan darinya, dan hasil latihan di rumah bisa dibagikan ke guru |
+
+## 3. Key Features
+
+Semua fitur di bawah **sudah berfungsi** di versi ini.
+
+### Etalase kelas
+![Etalase kelas tari Bali](tangkapan-layar/01-etalase.jpg)
+
+18 kelas dalam 4 kategori (kreasi, penyambutan, pertunjukan, gerak dasar), dengan pencarian dan saringan tingkat. Deskripsi tiap tari bersumber dari jurnal dan rujukan tertulis.
+
+### Studio latihan
+- Video guru dan kamera murid berdampingan, keduanya seperti cermin.
+- Garis tubuh berwarna per bagian, kemiripan 0–100, dan satu petunjuk perbaikan.
+- **Pelatih suara** berbahasa Indonesia, karena murid berdiri 2–3 meter dari layar.
+- **Tanpa menyentuh laptop**: angkat kedua tangan di atas kepala untuk mulai. Video berhenti sendiri bila murid keluar dari kamera, dan lanjut saat kembali.
+- Tanda **"Seledet!"** saat guru melirik; latihan per babak; kecepatan 0,5× / 0,75× / 1×.
+- Panduan 3 langkah (letak laptop, jarak, cahaya) pada kunjungan pertama.
+
+### Kartu kesalahan berulang
+![Kartu kesalahan: kiri–kanan kebalik](tangkapan-layar/03-kartu-kesalahan.jpg)
+
+Bila gerak yang sama salah berkali-kali, muncul kartu besar dalam bahasa sehari-hari, sementara video tetap berjalan:
+- **Kebalik kiri–kanan** — *Guru: tangan kanan di atas, tangan kiri di bawah · Anda: kebalik → Tukar*
+- **Tertinggal** — *Percepat: gerak Anda ±1,5 detik di belakang guru*
+- **Kesalahan berulang** — *Guru: lutut kanan agak ditekuk (±143°) · Anda: ±120°, terlalu ditekuk*
+
+### Murid tidak disalahkan karena kamera
+![Gerbang kualitas: tubuh terlalu kecil di kamera](tangkapan-layar/04-gerbang-kualitas.jpg)
+
+AI memeriksa sendiri apakah gambar kamera cukup jelas: ukuran tubuh di layar, kecerahan, ketajaman (lensa buram), dan keyakinan model. Bila tidak, garis berubah **abu-abu**, muncul saran ("Maju 1–2 langkah", "Tambah cahaya", "Bersihkan lensa kamera"), dan frame itu **tidak dinilai**. Murid tidak mendapat nilai buruk hanya karena kameranya.
+
+### Hasil, riwayat, dan bagikan ke guru
+![Halaman hasil: nilai empat unsur, seledet, koreksi, dan garis kemiripan](tangkapan-layar/05-hasil.jpg)
+
+- Nilai total dan per unsur, seledet per kejadian ("7 dari 10 tepat"), tiga koreksi dengan tombol "lihat gerak guru", garis kemiripan per detik, dan bagian tersulit.
+- **Riwayat** dengan garis kemajuan per kelas, tersimpan di peramban.
+- **Bagikan ke guru tanpa server**: tautan hasil (isinya di bagian `#` tautan, tidak terkirim ke server) atau kartu hasil PNG.
+
+### Bisa dipakai di HP
+<img src="tangkapan-layar/06-hp.jpg" alt="Tampilan studio di HP" width="300">
+
+### Untuk guru
+Halaman **Untuk Guru** mengubah video gerak menjadi pelajaran (deret gerak + segmen), diproses di peramban.
+
+## 4. Tech Stack
+
+| Lapisan | Teknologi |
+|---|---|
+| Frontend | React 19, TypeScript 7 (strict), Vite 8, Tailwind CSS 4, React Router 7, Zod |
+| AI di peramban | MediaPipe Tasks Vision 1.1.1 — Holistic Landmarker, di Web Worker (WebAssembly) |
+| Suara | Web Speech API bawaan peramban |
+| Pengujian | Vitest (141 uji), uji ujung ke ujung dengan Chrome DevTools Protocol |
+| CI / Hosting | GitHub Actions (typecheck, uji, build) · Vercel (situs statis) |
+
+Semua versi pustaka dikunci di `package-lock.json`.
+
+## 5. AI Implementation
+
+| Tahap | Model / metode | Input → Output |
 |---|---|---|
-| Deteksi tubuh, tangan, dan wajah | **MediaPipe Holistic Landmarker**, delegasi CPU, di Web Worker (cadangan: Pose + Hand + Face Landmarker) | Frame kamera → 33 titik tubuh (gambar + 3D), 21 titik per tangan, 6 *blendshape* wajah |
-| Segmentasi gerak | Kecepatan sendi dan perpindahan pinggul (implementasi sendiri) | Deret fitur → segmen pokok / peralihan / perpindahan |
-| Penyelarasan tempo | Dynamic Time Warping (implementasi sendiri) | Deret fitur murid + guru → pasangan frame + keterlambatan |
-| Umpan balik saat menari | Frame guru paling mirip dalam jendela −0,6…+0,2 detik (implementasi sendiri) | Fitur murid → warna per bagian, kemiripan 0–100, satu petunjuk perbaikan (juga diucapkan, Web Speech API) |
-| Seledet | Kejadian lirikan cepat relatif terhadap netral penari, dicocokkan lewat peta waktu DTW (implementasi sendiri) | Deret lirikan murid + guru → tepat / arah berbeda / terlewat per kejadian |
-| Kendali tanpa sentuh | Titik tubuh dari Holistic (implementasi sendiri) | Kedua tangan di atas kepala → mulai; tubuh hilang > 2 detik → jeda |
-| Gerbang kualitas kamera | Ukuran tubuh di layar, keyakinan AI, kecerahan, ketajaman (variansi Laplacian) | Frame → kurang jelas? → garis abu-abu, saran kamera, frame tidak dinilai |
-| Kartu kesalahan berulang | Kebalik kiri–kanan terhadap jendela waktu guru; tertinggal (gerak cocok dengan guru beberapa detik lalu); kesalahan yang mendominasi atau terjadi ≥ 3× dalam 15 detik | Deret kesalahan → kartu "Guru: … / Anda: …" + satu perintah |
-| Penilaian | Jarak dalam satuan toleransi, kelompok bagian tubuh terburuk menentukan → `100 × exp(−d/τ)` | Selisih → skor 0–100 per unsur |
-| Kalimat koreksi | Sekarang **templat**. Rencana: LLM *(penyedia diisi)* yang hanya menerima angka | Angka penyimpangan → kalimat |
+| Deteksi | **MediaPipe Holistic Landmarker** (Google), CPU, Web Worker | Frame kamera → 33 titik tubuh (2D + 3D), 21 titik per tangan, *blendshape* wajah |
+| Fitur | Implementasi sendiri (`src/scoring/fitur.ts`) | 30 fitur per frame: sudut sendi 3D, tinggi tangan, tekuk jari, arah hadap, lirikan, senyum, perpindahan |
+| Segmentasi | Kecepatan anggota badan, ambang diam adaptif | Deret fitur → segmen **pokok** (agem), **peralihan** (tangkis), **perpindahan** (tandang) |
+| Penyelarasan tempo | **Dynamic Time Warping** (jendela Sakoe-Chiba) | Gerak murid + guru → pasangan frame dan keterlambatan |
+| Penilaian | Selisih dalam satuan toleransi (15° tubuh, 25° jari); kelompok bagian tubuh terburuk menentukan | Skor 0–100 per unsur = `100 × e^(−d/2)` + tiga koreksi |
+| Seledet | Lirikan cepat relatif terhadap posisi netral penari | Tepat / arah berbeda / terlewat per kejadian |
+| Umpan balik saat menari | Frame guru paling mirip dalam −0,6…+0,2 detik | Warna per bagian, kemiripan, petunjuk, suara |
+| Kartu kesalahan | Kebalik kiri–kanan, tertinggal, kesalahan yang berulang | Kartu "Guru: … / Anda: …" + satu perintah |
+| Gerbang kualitas | Ukuran tubuh, kecerahan, ketajaman (variansi Laplacian), keyakinan model | Frame kurang jelas → tidak dinilai, saran kamera |
 
-Video kamera **tidak dikirim ke server**. Model dan WASM dimuat dari server Ngigel sendiri. Spesifikasi: [docs/04_SPESIFIKASI_AI_DAN_PENILAIAN.md](docs/04_SPESIFIKASI_AI_DAN_PENILAIAN.md).
+**Kenapa AI diperlukan:** sikap tubuh, bentuk jari, dan arah lirikan tidak bisa dibaca dari piksel tanpa model. Murid juga tidak pernah tepat sama cepat dengan guru, sehingga gerak harus diselaraskan dulu sebelum dibandingkan. Seledet sendiri berlangsung kurang dari ±0,3 detik.
 
-## Architecture / Data Flow
+**Semua ambang dan bobot** ada di satu berkas, `src/config.ts`, masing-masing dengan alasan dan data ujinya.
+
+### Bukti uji
+| Uji | Hasil |
+|---|---|
+| Uji otomatis | **141 uji** lolos (`npm run test`), dijalankan CI pada setiap push |
+| Ujung ke ujung (Chrome + kamera palsu berisi video tari; "murid" = penari guru) | Gerak benar **78–86** · terlambat 1,5 detik **75–83** (keterlambatan terukur 1,4 detik) · tarian lain **35–37** |
+| Kalibrasi sintetis (74 skenario dari video berlisensi terbuka) | Gerak mirip ≥ 86 · sengaja salah, median 48 · gerak lain ≤ 52 |
+| Kondisi kamera buruk (kamera palsu diperkecil, digelapkan, diburamkan, dicerminkan) | Jauh, gelap, buram: tidak diberi nilai yang salah, diganti saran kamera · murid kiri–kanan tertukar mendapat kartu "Kebalik" · penari identik tidak mendapat kartu palsu |
+
+Angka di atas **bukan akurasi**: penari uji sama dengan penari guru, dan kamera palsu tidak punya derau kamera sungguhan. Alat ujinya ada di `scripts/uji/` dan bisa diulang.
+
+## 6. Architecture / Data Flow
+
 ```
-Webcam (frame asli) → MediaPipe Holistic (di peramban, Web Worker) → fitur (kiri–kanan anatomis)
-      → perbandingan real-time (warna stickman, kemiripan, petunjuk; kelonggaran keterlambatan)
-      → setelah latihan: DTW → segmen → skor per unsur + seledet → koreksi dari templat
-        (rencana: [angka saja] → API → LLM → kalimat koreksi)
-      → riwayat disimpan di peramban (tanpa data murid di server)
-      → bagikan: angka hasil dikompres di bagian # tautan (tidak terkirim ke server) atau kartu PNG
+Pengguna (murid / guru) — peramban + webcam
+   │
+   ▼
+Frontend: React + TypeScript — situs statis di Vercel (CSP, kamera hanya untuk situs sendiri)
+   ├─ Web Worker: MediaPipe Holistic (model dan WASM dari server Ngigel sendiri)      ← AI
+   ├─ Gerbang kualitas kamera → umpan balik real-time (warna, petunjuk, suara, kartu)   ← AI
+   └─ Setelah menari: fitur → segmentasi → DTW → skor per unsur + seledet → koreksi     ← AI
+   │
+   ▼
+Backend / database: tidak ada pada MVP — disengaja, tidak ada data murid di server
+   │
+   ▼
+Hasil: nilai + koreksi · riwayat di peramban · bagikan lewat tautan # (tidak melewati server)
 ```
-Alur lengkap: [docs/03_FLOW_PROYEK.md](docs/03_FLOW_PROYEK.md). Struktur folder: [docs/02_STRUKTUR_PROYEK.md](docs/02_STRUKTUR_PROYEK.md).
 
-## Installation / Run Instructions
-Prasyarat: Node.js ≥ 22.12, npm ≥ 10, peramban Chrome/Edge, webcam.
+| Folder | Isi |
+|---|---|
+| `src/vision/` | Kamera, Web Worker, MediaPipe, stickman |
+| `src/scoring/` | Mesin penilaian: fitur, segmentasi, DTW, skor, seledet (fungsi murni, diuji) |
+| `src/latihan/` | Umpan balik, gerbang kualitas, kartu kesalahan, sesi, riwayat, bagikan |
+| `src/pages/` | Etalase, studio, hasil, riwayat, untuk guru, tentang |
+| `tests/` | Uji otomatis |
+| `scripts/uji/` | Alat uji ujung ke ujung, benchmark, dan kalibrasi |
+
+## 7. Installation / Run Instructions
+
+Prasyarat: **Node.js ≥ 22.12**, npm ≥ 10, Chrome atau Edge, webcam.
+
 ```bash
+git clone https://github.com/GABRIELBOSSTON/ngigel-pelatih-tari-bali.git
+cd ngigel-pelatih-tari-bali
 npm install --ignore-scripts   # pasang pustaka sesuai versi terkunci
-npm run setup:model            # hanya bila public/models kosong: unduh model Holistic resmi (13,68 MB); ukuran dicocokkan
-cp .env.example .env           # belum wajib di tahap fondasi; jangan di-commit
-npm run dev                    # menyalin WASM MediaPipe otomatis; buka http://localhost:5173
-npm run test                   # uji otomatis
-npm run typecheck              # pemeriksaan tipe
-npm run build                  # build produksi ke dist/
+npm run dev                    # buka http://localhost:5173
 ```
-Panduan lengkap: [docs/08_PANDUAN_PENGEMBANGAN.md](docs/08_PANDUAN_PENGEMBANGAN.md). Uji ujung ke ujung, benchmark, dan kalibrasi yang bisa diulang: [scripts/uji/README.md](scripts/uji/README.md).
 
-**Video contoh.** Semua kelas sementara memakai video Tari Kreasi Janger (Puputdhe, YouTube) sebagai contoh untuk prototipe lomba:
-- `public/video/tari-kreasi-janger.mp4`;
-- `public/lessons/tari-kreasi-janger.json`, data gerak guru yang dibuat dari video itu lewat halaman `/guru`.
+| Perintah | Fungsi |
+|---|---|
+| `npm run test` | Menjalankan 141 uji otomatis |
+| `npm run typecheck` | Memeriksa tipe TypeScript |
+| `npm run build` | Build produksi ke `dist/` |
+| `npm run setup:model` | Mengunduh ulang model Holistic resmi (hanya bila `public/models/` kosong) |
 
-Kredit dan keterangan hak cipta tampil di bawah video. Izin pemilik masih diminta, dan untuk produksi video ini diganti video berizin (docs/05 bagian 4.6). Bila berkas tidak ada, studio meminta pengguna memilih video tari dari perangkatnya sendiri; video itu dibaca di peramban dan tidak disimpan.
+Model AI sudah ada di `public/models/`, dan WASM MediaPipe disalin otomatis saat `dev`/`build`. Tidak ada kunci API yang dibutuhkan.
 
-**Deploy lewat Git (Vercel), jangan unggah `dist/` hasil build lokal**, karena isi `public/video-lokal/` ikut tersalin ke sana.
+## 8. Deployment URL
 
-## Deployment URL
-*(diisi)*
+*(diisi setelah deploy ke Vercel)*
 
-## Demo Account
-Tidak diperlukan; aplikasi bisa dipakai tanpa login.
+## 9. Demo Account
 
-## Known Limitations
-- Kamera tunggal tidak melihat kedalaman dengan sempurna; gerak menghadap samping kurang akurat.
-- Tandang (pola lantai) butuh ruang; di rumah, fokus pada langkah di tempat dan perpindahan pendek.
-- Kualitas penjiwaan (*semu*/*greget*) tidak diukur; tangkep diwakili lirikan, gerak kepala, dan senyum.
-- Kain atau kostum bisa menutupi lutut; lirikan mata butuh wajah cukup dekat dan terang.
+Tidak diperlukan. Aplikasi bisa dipakai langsung tanpa login.
+
+**Cara mencoba:** buka URL → pilih kelas mana saja → izinkan kamera → mundur sampai kepala dan kaki terlihat → tekan **Mulai menari** atau angkat kedua tangan → ikuti video guru → lihat nilai dan koreksi.
+
+## 10. Known Limitations
+
+- Angka uji sejauh ini berasal dari **penari yang sama dengan guru** lewat kamera palsu. Uji dengan orang yang berbeda bentuk tubuh masih berlangsung.
+- Kamera tunggal tidak melihat kedalaman dengan sempurna; gerak menyamping kurang akurat.
+- Kualitas penjiwaan (*semu*/*greget*) tidak diukur. Tangkep diwakili lirikan, arah kepala, dan senyum.
 - Nilai mengukur **kemiripan dengan guru acuan**, bukan kebenaran menurut pakem.
-- Angka uji sejauh ini berasal dari **penari yang sama** dengan guru, lewat kamera palsu. Uji dengan orang yang berbeda bentuk tubuh belum dilakukan (docs/09 bagian 8).
-- Di perangkat lambat (< 8 deteksi/detik), sebagian seledet cepat tidak tertangkap. Halaman Hasil memberi catatan ini.
+- Di laptop uji, AI berjalan ±4–8 deteksi per detik (CPU). Di bawah 8, angka seledet kurang pasti, dan halaman Hasil memberi catatan itu.
+- Semua kelas sementara memakai satu video contoh (Tari Kreasi Janger); kalimat koreksi masih dari templat.
 
-## Third-party Resources / Credits
-- Pustaka MediaPipe Tasks Vision (Google), Apache-2.0. Model Holistic Landmarker (Google): *model card* BlazePose GHUM 3D, Face Mesh V2, dan Hand Tracking menyatakan Apache-2.0. Pustaka lain tercantum di [docs/07_AI_TECHNOLOGY_DISCLOSURE.md](docs/07_AI_TECHNOLOGY_DISCLOSURE.md).
-- Video contoh: Puputdhe, "Tari Kreasi JANGER Bali | Tari Kreasi Bali gerakan mudah" (YouTube). Video milik pemiliknya, dipakai sebagai contoh untuk prototipe MVP lomba, bukan untuk tujuan komersial. **Izin pemilik sedang diminta ketua tim**; video akan dihapus bila pemilik keberatan.
-- Huruf Plus Jakarta Sans (Tokotype), SIL Open Font License 1.1, lewat paket `@fontsource-variable/plus-jakarta-sans` 5.3.0 (disajikan dari server sendiri).
-- Gambar penari di etalase dan logo: digambar sendiri dengan SVG.
-- Deskripsi kelas tari: sumber tercantum di `src/katalog/katalog.ts` (`SUMBER`) dan halaman Tentang.
-- Definisi unsur tari Bali: *IGEL: Journal of Dance* 3(2), 2023; *Batarirupa* 2(1), 2022 (rincian di docs/04)
+## 11. Third-party Resources / Credits
 
-## Team Members
+- **MediaPipe Tasks Vision** dan model **Holistic Landmarker** (Google) — Apache License 2.0.
+- **Video contoh:** Puputdhe, "Tari Kreasi JANGER Bali | Tari Kreasi Bali gerakan mudah" (YouTube). Video milik pemiliknya, dipakai sebagai contoh gerak untuk prototipe MVP lomba, bukan untuk tujuan komersial. Izin pemilik sedang diminta, dan video akan dihapus bila pemilik keberatan. Kredit ini juga tampil di bawah video dalam aplikasi.
+- **Huruf** Plus Jakarta Sans (Tokotype) — SIL Open Font License 1.1.
+- Logo dan gambar penari di etalase digambar sendiri dengan SVG.
+- Definisi unsur tari Bali: Parasari dkk., *IGEL: Journal of Dance* 3(2), 2023; Wibawa dkk., *Batarirupa* 2(1), 2022. Sumber deskripsi kelas ada di `src/katalog/katalog.ts` dan halaman Tentang.
+
+## 12. AI & Technology Disclosure
+
+| Komponen | Isi |
+|---|---|
+| Framework / Frontend | React, Vite, TypeScript, Tailwind CSS, React Router |
+| Backend / Database | Tidak ada pada MVP (situs statis); riwayat di `localStorage` peramban |
+| Hosting | Vercel |
+| AI Model / Method | MediaPipe Holistic Landmarker (di peramban). Fitur, segmentasi, DTW, penilaian, seledet, gerbang kualitas, dan kartu kesalahan adalah implementasi sendiri. LLM tidak dipakai |
+| Dataset | Tidak melatih model. Video acuan: video contoh di atas. Benchmark memakai klip Wikimedia Commons berlisensi terbuka (tidak disertakan di repositori) |
+| AI Coding Assistant | Claude (Anthropic) membantu menulis kode dan dokumentasi; seluruh kode diuji dan dipahami tim |
+| Pre-existing Components | Tidak ada; proyek dibangun baru untuk kompetisi ini (November 2026) |
+
+Kami menyatakan bahwa informasi di atas benar dan lengkap, dan kami bertanggung jawab atas penggunaan teknologi, kode, data, pustaka, model AI, dan aset dalam produk ini.
+
+## 13. Team Members
+
 | Nama | Peran |
 |---|---|
-| Gabriel Hamonangan Lumban Tobing | Ketua; pengembang |
-| Rahel Caroline Tobing | Anggota; *(peran diisi)* |
+| Gabriel Hamonangan Lumban Tobing | Ketua · pengembang |
+| Rahel Caroline Tobing | Anggota |
