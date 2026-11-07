@@ -1,9 +1,9 @@
-# Ngigel — Pelatih Tari Bali Berbasis AI
+# Ngigel Pelatih Tari Bali Berbasis AI
 
 **Berlatih tari Bali di rumah, dikoreksi seperti di sanggar.**
 Murid menari di depan webcam bersama video guru. AI di peramban membaca tubuh, jari, dan lirikan mata (*seledet*), lalu memberi nilai dan koreksi menurut **empat unsur dasar tari Bali**: agem, tandang, tangkis, dan tangkep.
 
-> AI Web Innovation Challenge — Bali DigiFest 2026 · Bidang Pendidikan · Tim Sekaa Kode
+> AI Web Innovation Challenge Bali DigiFest 2026 · Bidang Pendidikan · Tim Sekaa Kode
 > Versi yang dinilai: tag `v1.0-submission`
 
 ![Studio latihan: video guru di kiri, kamera murid di kanan dengan garis tubuh berwarna dan skor kemiripan](tangkapan-layar/02-studio.jpg)
@@ -52,9 +52,9 @@ Semua fitur di bawah **sudah berfungsi** di versi ini.
 ![Kartu kesalahan: kiri–kanan kebalik](tangkapan-layar/03-kartu-kesalahan.jpg)
 
 Bila gerak yang sama salah berkali-kali, muncul kartu besar dalam bahasa sehari-hari, sementara video tetap berjalan:
-- **Kebalik kiri–kanan** — *Guru: tangan kanan di atas, tangan kiri di bawah · Anda: kebalik → Tukar*
-- **Tertinggal** — *Percepat: gerak Anda ±1,5 detik di belakang guru*
-- **Kesalahan berulang** — *Guru: lutut kanan agak ditekuk (±143°) · Anda: ±120°, terlalu ditekuk*
+- **Kebalik kiri–kanan** *Guru: tangan kanan di atas, tangan kiri di bawah · Anda: kebalik → Tukar*
+- **Tertinggal** *Percepat: gerak Anda ±1,5 detik di belakang guru*
+- **Kesalahan berulang** *Guru: lutut kanan agak ditekuk (±143°) · Anda: ±120°, terlalu ditekuk*
 
 ### Murid tidak disalahkan karena kamera
 ![Gerbang kualitas: tubuh terlalu kecil di kamera](tangkapan-layar/04-gerbang-kualitas.jpg)
@@ -79,7 +79,7 @@ Halaman **Untuk Guru** mengubah video gerak menjadi pelajaran (deret gerak + seg
 | Lapisan | Teknologi |
 |---|---|
 | Frontend | React 19, TypeScript 7 (strict), Vite 8, Tailwind CSS 4, React Router 7, Zod |
-| AI di peramban | MediaPipe Tasks Vision 1.1.1 — Holistic Landmarker, di Web Worker (WebAssembly) |
+| AI di peramban | MediaPipe Tasks Vision 1.1.1 Holistic Landmarker, di Web Worker (WebAssembly) |
 | Suara | Web Speech API bawaan peramban |
 | Pengujian | Vitest (141 uji), uji ujung ke ujung dengan Chrome DevTools Protocol |
 | CI / Hosting | GitHub Actions (typecheck, uji, build) · Vercel (situs statis) |
@@ -117,16 +117,16 @@ Angka di atas **bukan akurasi**: penari uji sama dengan penari guru, dan kamera 
 ## 6. Architecture / Data Flow
 
 ```
-Pengguna (murid / guru) — peramban + webcam
+Pengguna (murid / guru)  peramban + webcam
    │
    ▼
-Frontend: React + TypeScript — situs statis di Vercel (CSP, kamera hanya untuk situs sendiri)
+Frontend: React + TypeScript  situs statis di Vercel (CSP, kamera hanya untuk situs sendiri)
    ├─ Web Worker: MediaPipe Holistic (model dan WASM dari server Ngigel sendiri)      ← AI
    ├─ Gerbang kualitas kamera → umpan balik real-time (warna, petunjuk, suara, kartu)   ← AI
    └─ Setelah menari: fitur → segmentasi → DTW → skor per unsur + seledet → koreksi     ← AI
    │
    ▼
-Backend / database: tidak ada pada MVP — disengaja, tidak ada data murid di server
+Backend / database: tidak ada pada MVP  disengaja, tidak ada data murid di server
    │
    ▼
 Hasil: nilai + koreksi · riwayat di peramban · bagikan lewat tautan # (tidak melewati server)
@@ -182,9 +182,9 @@ Tidak diperlukan. Aplikasi bisa dipakai langsung tanpa login.
 
 ## 11. Third-party Resources / Credits
 
-- **MediaPipe Tasks Vision** dan model **Holistic Landmarker** (Google) — Apache License 2.0.
+- **MediaPipe Tasks Vision** dan model **Holistic Landmarker** (Google) Apache License 2.0.
 - **Video contoh:** Puputdhe, "Tari Kreasi JANGER Bali | Tari Kreasi Bali gerakan mudah" (YouTube). Video milik pemiliknya, dipakai sebagai contoh gerak untuk prototipe MVP lomba, bukan untuk tujuan komersial. Izin pemilik sedang diminta, dan video akan dihapus bila pemilik keberatan. Kredit ini juga tampil di bawah video dalam aplikasi.
-- **Huruf** Plus Jakarta Sans (Tokotype) — SIL Open Font License 1.1.
+- **Huruf** Plus Jakarta Sans (Tokotype) SIL Open Font License 1.1.
 - Logo dan gambar penari di etalase digambar sendiri dengan SVG.
 - Definisi unsur tari Bali: Parasari dkk., *IGEL: Journal of Dance* 3(2), 2023; Wibawa dkk., *Batarirupa* 2(1), 2022. Sumber deskripsi kelas ada di `src/katalog/katalog.ts` dan halaman Tentang.
 
