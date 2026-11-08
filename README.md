@@ -111,6 +111,7 @@ Semua versi pustaka dikunci di `package-lock.json`.
 | Ujung ke ujung (Chrome + kamera palsu berisi video tari; "murid" = penari guru) | Gerak benar **78–86** · terlambat 1,5 detik **75–83** (keterlambatan terukur 1,4 detik) · tarian lain **35–37** |
 | Kalibrasi sintetis (74 skenario dari video berlisensi terbuka) | Gerak mirip ≥ 86 · sengaja salah, median 48 · gerak lain ≤ 52 |
 | Kondisi kamera buruk (kamera palsu diperkecil, digelapkan, diburamkan, dicerminkan) | Jauh, gelap, buram: tidak diberi nilai yang salah, diganti saran kamera · murid kiri–kanan tertukar mendapat kartu "Kebalik" · penari identik tidak mendapat kartu palsu |
+| Gestur mulai dan pelatih suara (Chrome + kamera palsu; mesin suara tiruan mencatat kalimat yang diucapkan) | Klip yoga, tangan di bawah lalu di atas kepala: hitung mundur mulai **1,70–1,74 detik** setelah tangan terangkat, tanpa klik (4 kali) · penari Janger 60 detik di layar persiapan: gestur **tidak terpicu** (4 kali) · kalimat persiapan, hitung mundur, dan koreksi saat menari diucapkan dalam bahasa Indonesia. Bunyi di perangkat sungguhan belum diuji otomatis |
 | Perangkat nyata: iPhone XR di URL produksi, satu sesi 90 detik oleh ketua tim yang belum menguasai gerakannya (8 Nov 2026) | Izin kamera berjalan, tubuh terbaca di 100% frame, AI 4,2 deteksi/detik · skor total 47 (agem 66, tangkis 56, tangkep 41, tandang 4) · terlambat ±0,22 detik |
 
 Angka di atas **bukan akurasi**: penari uji otomatis sama dengan penari guru, dan kamera palsu tidak punya derau kamera sungguhan. Skor adalah indikator kemiripan dengan video guru, belum divalidasi guru tari. Alat ujinya ada di `scripts/uji/` dan bisa diulang.
@@ -118,6 +119,8 @@ Angka di atas **bukan akurasi**: penari uji otomatis sama dengan penari guru, da
 Uji iPhone XR menghasilkan dua perbaikan tampilan ponsel (8 Nov):
 - perintah persiapan ("Angkat kedua tangan di atas kepala untuk mulai") kini tampil besar dan diucapkan;
 - video guru, kamera, dan petunjuk dimuat dalam satu layar tanpa memotong video guru.
+
+Uji pelatih suara menemukan satu cacat kecil yang sudah diperbaiki: kartu kesalahan kadang mengulang kalimat yang baru saja diucapkan, sehingga terdengar "Turunkan tang… Turunkan tangan kiri". Kini kalimat yang sama tidak diulang dalam 3 detik; kartunya tetap tampil.
 
 ## 6. Architecture / Data Flow
 

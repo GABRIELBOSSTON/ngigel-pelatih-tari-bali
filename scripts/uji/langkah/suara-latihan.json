@@ -1,0 +1,33 @@
+[
+ {
+  "url": "/latihan/tari-kreasi-janger?mulai=40&akhir=70",
+  "lebar": 1440,
+  "tinggi": 1000,
+  "tungguJs": "[...document.querySelectorAll('button')].some(b => b.textContent.includes('Mulai menari') && !b.disabled)",
+  "batasMs": 90000,
+  "nama": "suara_ai_siap",
+  "potret": false,
+  "ambil": "({ ms: Math.round(performance.now()), ucapan: (window.__ucapan || []).map(u => [u.ms, u.teks]) })"
+ },
+ {
+  "tunggu": 60000,
+  "nama": "suara_persiapan_60_detik",
+  "ambil": "({ ms: Math.round(performance.now()), gesturTerpicu: window.__ucapan.some(u => u.teks.startsWith('Bersiap')), papan: [...document.querySelectorAll('[role=status]')].filter(e => e.offsetParent !== null).map(e => e.innerText), ucapan: window.__ucapan.map(u => [u.ms, u.teks, u.bahasa]) })"
+ },
+ {
+  "nama": "klik_mulai",
+  "potret": false,
+  "aksi": "(() => { [...document.querySelectorAll('button')].find(b => b.textContent.includes('Mulai menari')).click(); return { ms: Math.round(performance.now()) }; })()"
+ },
+ {
+  "tungguJs": "location.pathname.startsWith('/hasil')",
+  "batasMs": 90000,
+  "tunggu": 2500,
+  "nama": "suara_hasil",
+  "ambil": "({ ms: Math.round(performance.now()), ucapan: window.__ucapan.map(u => [u.ms, u.teks]) })",
+  "simpanJs": {
+   "berkas": "ucapan.json",
+   "ekspresi": "JSON.stringify(window.__ucapan, null, 1)"
+  }
+ }
+]

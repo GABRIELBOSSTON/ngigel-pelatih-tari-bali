@@ -503,8 +503,10 @@ function RuangLatihan({ kelas, contoh, data }: { kelas: KelasTari; contoh: boole
         if (saranKamera) {
           if (saranKamera !== terakhir.teks && sekarang - terakhir.waktu >= STUDIO.jedaSuaraPetunjukMs) aksi.ucapkan(saranKamera);
         } else if (kartuBaru) {
-          // Kartu baru selalu diucapkan sekali, memotong petunjuk biasa yang mungkin sedang diucapkan.
-          aksi.ucapkan(kartuBaru.ucapan, true);
+          // Kartu baru diucapkan sekali, memotong petunjuk biasa yang mungkin sedang diucapkan. Kalimat yang sama
+          // dengan yang baru saja diucapkan tidak diulang (kartu tetap tampil), supaya murid tidak mendengar
+          // "Turunkan tang… Turunkan tangan kiri" (ditemukan pada uji suara-latihan, 8 Nov).
+          if (kartuBaru.ucapan !== terakhir.teks || sekarang - terakhir.waktu >= STUDIO.jedaSuaraPetunjukMs) aksi.ucapkan(kartuBaru.ucapan, true);
           kartuBaruRef.current = null;
         } else if (petunjuk && petunjuk.teks !== terakhir.teks && sekarang - terakhir.waktu >= STUDIO.jedaSuaraPetunjukMs) aksi.ucapkan(petunjuk.teks);
         else if (!petunjuk && kemiripan !== null && kemiripan >= 80 && sekarang - terakhir.waktu >= 10000) aksi.ucapkan("Bagus, pertahankan");

@@ -5,6 +5,17 @@
 //   node scripts/uji/uji-studio.mjs --langkah scripts/uji/langkah/halaman.json --keluar hasil_uji/halaman
 //   node scripts/uji/uji-studio.mjs --langkah scripts/uji/langkah/e2e-benar.json --keluar hasil_uji/A --kamera hasil_uji/janger_35_75.mjpeg
 // Pilihan: --server preview|vercel-lokal|dev (bawaan preview) · --chrome <lokasi> · --port 4175 · --portCdp 9336
+//          --sisip <berkas.js>: skrip yang dijalankan sebelum skrip halaman (mis. suara-tiruan.js)
+//
+// Uji gestur mulai dan pelatih suara. Kamera palsu dibuat dari klip yoga Wikimedia Commons (CC BY 3.0)
+// https://commons.wikimedia.org/wiki/File:Yoga_with_Modi%E2%80%94Tadasana_(English).webm, disimpan
+// sebagai tadasana.webm: tangan di bawah 7,5 detik, lalu di atas kepala 3,5 detik, diulang.
+//   node scripts/uji/buat-mjpeg.mjs --video tadasana.webm --keluar hasil_uji/tadasana_a.mjpeg --mulai 124 --lama 7.5
+//   node scripts/uji/buat-mjpeg.mjs --video tadasana.webm --keluar hasil_uji/tadasana_b.mjpeg --mulai 109 --lama 3.5
+//   cat hasil_uji/tadasana_a.mjpeg hasil_uji/tadasana_b.mjpeg > hasil_uji/tadasana_turun_naik.mjpeg
+//   node scripts/uji/uji-studio.mjs --langkah scripts/uji/langkah/gestur-mulai.json --keluar hasil_uji/gestur --kamera hasil_uji/tadasana_turun_naik.mjpeg --sisip scripts/uji/suara-tiruan.js
+// Pembanding (gestur tidak boleh terpicu oleh gerak tari) dan suara selama satu sesi:
+//   node scripts/uji/uji-studio.mjs --langkah scripts/uji/langkah/suara-latihan.json --keluar hasil_uji/suara --kamera hasil_uji/janger_35_75.mjpeg --sisip scripts/uji/suara-tiruan.js
 //
 // Bentuk satu langkah: { url?, lebar?, tinggi?, aksi?, tungguJs?, batasMs?, tunggu?, ambil?, simpanJs?, nama?, potret?, penuh? }
 // - aksi/tungguJs/ambil: ekspresi JavaScript yang dijalankan di halaman;
@@ -31,6 +42,7 @@ rmSync(profil, { recursive: true, force: true });
 
 const server = await nyalakanServer(arg.server ?? "preview", portServer);
 const chrome = await bukaChrome({ chrome: lokasiChrome(arg), profil, port: portCdp, kamera: arg.kamera ? resolve(arg.kamera) : undefined });
+if (arg.sisip) await chrome.kirim("Page.addScriptToEvaluateOnNewDocument", { source: readFileSync(resolve(arg.sisip), "utf8") });
 try {
   for (const l of langkah) {
     if (l.lebar) await chrome.kirim("Emulation.setDeviceMetricsOverride", { width: l.lebar, height: l.tinggi ?? 900, deviceScaleFactor: 1, mobile: l.lebar < 600 });
