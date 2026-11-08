@@ -46,9 +46,12 @@ export const TAU_UNSUR: Record<Unsur, number> = {
  * w > 0 meniru guru: "agemnya kurang karena lututnya", walau bagian lain sudah benar.
  *
  * Kalibrasi 3 Nov 2026 (docs/09 bagian 7): w = 1, artinya nilai unsur ditentukan bagian tubuh yang
- * paling jauh dari guru. Hanya pengaturan ini yang memenuhi kedua kriteria docs/04 bagian 10 pada
- * 74 kasus sintetis (gerak mirip terendah 75; gerak salah median 48), dan pada uji ujung ke ujung
- * memberi gerak benar 79, gerak lain 32. Sebelumnya 0,5 (gerak salah median 56, terlalu lunak).
+ * paling jauh dari guru. Pada 74 kasus sintetis dengan konfigurasi sekarang (termasuk syarat cakupan
+ * MIN_PORSI_KELOMPOK), tiga pasangan (w, τ) memenuhi kedua kriteria docs/04 bagian 10: (0,5; 1,5),
+ * (1; 1,5), dan (1; 2). Yang dipakai (1; 2), yang paling longgar di antara ketiganya: gerak mirip
+ * terendah 86, gerak salah median 48, gerak lain tertinggi 52. Tanpa syarat cakupan, gerak mirip
+ * terendah turun ke 75. Uji ujung ke ujung terbaru: gerak benar 78–86, gerak lain 35–37.
+ * Sebelumnya w = 0,5 (gerak salah median 56, terlalu lunak).
  */
 export const BOBOT_KELOMPOK_TERBURUK = 1;
 

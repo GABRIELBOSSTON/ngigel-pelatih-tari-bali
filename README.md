@@ -163,7 +163,9 @@ Model AI sudah ada di `public/models/`, dan WASM MediaPipe disalin otomatis saat
 
 ## 8. Deployment URL
 
-*(diisi setelah deploy ke Vercel)*
+**https://ngigel.vercel.app/**
+
+Situs statis di Vercel. Bisa dibuka langsung dari laptop atau ponsel tanpa instalasi dan tanpa login.
 
 ## 9. Demo Account
 
