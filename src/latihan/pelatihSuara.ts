@@ -42,6 +42,26 @@ export function usePelatihSuara(aktif: boolean) {
     if (!aktif && adaSintesis()) window.speechSynthesis.cancel();
   }, [aktif]);
 
+  // Safari di iPhone baru mengizinkan suara sesudah ada sentuhan di halaman. Sentuhan atau tombol pertama
+  // dipakai untuk "membuka" suara dengan ucapan kosong tanpa volume, supaya petunjuk berikutnya terdengar,
+  // termasuk bila latihan dimulai dengan gestur (tanpa menyentuh layar).
+  useEffect(() => {
+    if (!adaSintesis()) return;
+    const buka = () => {
+      window.removeEventListener("pointerdown", buka);
+      window.removeEventListener("keydown", buka);
+      const kosong = new SpeechSynthesisUtterance(" ");
+      kosong.volume = 0;
+      window.speechSynthesis.speak(kosong);
+    };
+    window.addEventListener("pointerdown", buka);
+    window.addEventListener("keydown", buka);
+    return () => {
+      window.removeEventListener("pointerdown", buka);
+      window.removeEventListener("keydown", buka);
+    };
+  }, []);
+
   const ucapkan = useCallback(
     (teks: string, opsi: OpsiUcap = {}) => {
       if (!aktifRef.current || !suara || !adaSintesis()) return false;

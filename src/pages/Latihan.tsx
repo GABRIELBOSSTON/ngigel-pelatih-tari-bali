@@ -20,6 +20,7 @@ import {
 } from "../latihan/kualitas";
 import { bacaPengaturan, KECEPATAN_PUTAR, simpanPengaturan, type Pengaturan } from "../latihan/pengaturan";
 import { usePelatihSuara } from "../latihan/pelatihSuara";
+import { langkahPersiapan, perluDiucapkan, type LangkahPersiapan } from "../latihan/persiapan";
 import { umpanBalik, type Petunjuk, type UmpanBalik } from "../latihan/petunjuk";
 import { buatIdSesi, simpanSesi, type SesiTersimpan } from "../latihan/riwayat";
 import {
@@ -234,6 +235,8 @@ type Layar = {
   ukuranTubuh: number | null;
   /** Kartu kesalahan berulang yang sedang tampil (src/latihan/kesalahan.ts). */
   kartu: KartuKesalahan | null;
+  /** Layar persiapan: satu perintah terpenting, ditampilkan besar dan diucapkan (src/latihan/persiapan.ts). */
+  langkah: LangkahPersiapan | null;
 };
 
 function RuangLatihan({ kelas, contoh, data }: { kelas: KelasTari; contoh: boolean; data: MateriSiap }) {
@@ -337,7 +340,18 @@ function RuangLatihan({ kelas, contoh, data }: { kelas: KelasTari; contoh: boole
     kartu: null,
     adaOrang: false,
     terpotong: false,
+    langkah: null,
   });
+  const gridRef = useRef<HTMLDivElement>(null);
+  // Di ponsel, sekali saja saat AI siap (dan panduan pertama sudah ditutup), gulir ke panel latihan:
+  // murid yang sudah berdiri jauh tetap bisa membaca perintah besar dan mulai dengan gestur.
+  const sudahGulirRef = useRef(false);
+  useEffect(() => {
+    if (statusVisi.tahap !== "siap" || panduan || sudahGulirRef.current) return;
+    if (!window.matchMedia("(max-width: 1023px)").matches) return;
+    sudahGulirRef.current = true;
+    gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [statusVisi.tahap, panduan]);
 
   /** Suara video guru diredam selama pelatih bicara, lalu dipulihkan. */
   const redam = useCallback(() => {
@@ -497,6 +511,15 @@ function RuangLatihan({ kelas, contoh, data }: { kelas: KelasTari; contoh: boole
       }
 
       const gelapSejak = gelapSejakRef.current;
+      const gelap = gelapSejak !== null && sekarang - gelapSejak >= STUDIO.lamaGelapDetik * 1000;
+      const buram = buramSejakRef.current !== null && sekarang - buramSejakRef.current >= STUDIO.lamaGelapDetik * 1000;
+      const ukuranTubuh = tubuhRef.current ? median(ukuranTerakhirRef.current) : null;
+      // Layar persiapan: satu perintah besar, juga diucapkan bila ada orang di depan kamera.
+      const langkah =
+        tahapIni === "persiapan" && statusVisiRef.current === "siap"
+          ? langkahPersiapan({ adaOrang: adaOrangRef.current, tubuh: tubuhRef.current, ukuranTubuh, gelap, buram })
+          : null;
+      if (langkah && perluDiucapkan(langkah, adaOrangRef.current, suaraTerakhirRef.current, sekarang, STUDIO.suaraPersiapan)) aksi.ucapkan(langkah.teks);
       setLayar({
         waktu,
         kemiripan: menari || tahapIni === "jeda" ? kemiripan : null,
@@ -509,12 +532,13 @@ function RuangLatihan({ kelas, contoh, data }: { kelas: KelasTari; contoh: boole
         garis: garisWaktu(sampelRef.current, rentang),
         gestur,
         jedaOtomatis: tahapIni === "jeda" && jedaOtomatisRef.current,
-        gelap: gelapSejak !== null && sekarang - gelapSejak >= STUDIO.lamaGelapDetik * 1000,
-        buram: buramSejakRef.current !== null && sekarang - buramSejakRef.current >= STUDIO.lamaGelapDetik * 1000,
+        gelap,
+        buram,
         seledetDekat: seledetGuru.some((k) => Math.abs(k.t - waktu) <= TANDA_SELEDET_DETIK),
         kurangJelas,
-        ukuranTubuh: tubuhRef.current ? median(ukuranTerakhirRef.current) : null,
+        ukuranTubuh,
         kartu: menari && !kurangJelas ? kartuRef.current : null,
+        langkah,
       });
     }, 200);
     return () => window.clearInterval(id);
@@ -540,6 +564,8 @@ function RuangLatihan({ kelas, contoh, data }: { kelas: KelasTari; contoh: boole
     video.muted = !pengaturan.suara;
     setPesan(null);
     setTahap("hitung");
+    // Di ponsel, gulir ke panel latihan supaya video guru, kamera, dan petunjuk terlihat bersamaan.
+    if (window.matchMedia("(max-width: 1023px)").matches) gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     // Sudah mulai latihan sekali: panduan kunjungan pertama tidak perlu muncul lagi.
     if (panduan) tutupPanduan();
     ucapkan("Bersiap. Mundur ke posisi menari.", true);
@@ -727,9 +753,9 @@ function RuangLatihan({ kelas, contoh, data }: { kelas: KelasTari; contoh: boole
         </p>
       )}
 
-      <div className="relative grid gap-4 lg:grid-cols-2">
-        {/* Panel guru */}
-        <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-stone-950 lg:aspect-auto">
+      <div ref={gridRef} className="relative grid scroll-mt-3 gap-3 lg:grid-cols-2 lg:gap-4">
+        {/* Panel guru: video ditampilkan utuh (object-contain), tidak dipotong, supaya penari selalu terlihat. */}
+        <div className="relative aspect-video overflow-hidden rounded-2xl bg-stone-950 lg:aspect-auto">
           <video
             ref={videoRef}
             src={data.urlVideo}
@@ -741,7 +767,7 @@ function RuangLatihan({ kelas, contoh, data }: { kelas: KelasTari; contoh: boole
             }}
             onTimeUpdate={saatWaktu}
             onEnded={selesai}
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full object-contain"
             style={pengaturan.cerminGuru ? CERMIN : undefined}
             aria-label={`Video guru: ${data.judul}${pengaturan.cerminGuru ? ", ditampilkan seperti cermin" : ""}`}
           />
@@ -772,10 +798,18 @@ function RuangLatihan({ kelas, contoh, data }: { kelas: KelasTari; contoh: boole
         </div>
 
         {/* Panel murid */}
-        <KameraView saatHasil={saatHasil} saatStatusVisi={setStatusVisi} saatKecerahan={saatKecerahan} opsiVisi={opsiVisi} className="rounded-2xl">
+        <KameraView
+          saatHasil={saatHasil}
+          saatStatusVisi={setStatusVisi}
+          saatKecerahan={saatKecerahan}
+          opsiVisi={opsiVisi}
+          className="rounded-2xl"
+          batasTinggiHpSvh={STUDIO.tinggiKameraHpSvh}
+        >
           <span className="absolute left-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-bold tracking-wide text-white">ANDA</span>
+          {/* Daftar cek rinci hanya di layar lebar; di ponsel cukup satu perintah besar di bawah kamera. */}
           {statusVisi.tahap === "siap" && tahap === "persiapan" && (
-            <ul className="absolute left-3 top-11 space-y-1 rounded-xl bg-black/60 px-3 py-2 text-xs font-semibold text-white">
+            <ul className="absolute left-3 top-11 space-y-1 rounded-xl bg-black/60 px-3 py-2 text-xs font-semibold text-white max-lg:hidden">
               <li>✓ Kamera dan AI siap{layar.fps > 0 ? ` (${layar.fps.toFixed(1).replace(".", ",")} fps)` : ""}</li>
               <li className={layar.tubuh ? "text-green-300" : "text-amber-200"}>
                 {layar.tubuh
@@ -796,18 +830,9 @@ function RuangLatihan({ kelas, contoh, data }: { kelas: KelasTari; contoh: boole
               )}
               {layar.gelap && <li className="text-amber-200">… Ruangan gelap: tambah cahaya dari depan</li>}
               {layar.buram && <li className="text-amber-200">… Gambar kamera buram: bersihkan lensa kamera</li>}
-              {layar.tubuh && (
-                <li className="pt-1 text-white/90">
-                  🙌 Angkat kedua tangan di atas kepala untuk mulai
-                  {layar.gestur > 0 && (
-                    <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-white/25" aria-hidden="true">
-                      <span className="block h-full rounded-full bg-prada" style={{ width: `${Math.round(layar.gestur * 100)}%` }} />
-                    </span>
-                  )}
-                </li>
-              )}
             </ul>
           )}
+          {tahap === "persiapan" && layar.langkah && <PapanPersiapan langkah={layar.langkah} gestur={layar.gestur} posisi="lapis" />}
           {layar.jedaOtomatis && (
             <div role="status" className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 px-6 text-center text-white">
               <p className="text-lg font-extrabold">Dijeda: tubuh Anda tidak terlihat</p>
@@ -822,11 +847,18 @@ function RuangLatihan({ kelas, contoh, data }: { kelas: KelasTari; contoh: boole
               <CincinSkor skor={layar.kemiripan} ukuran={56} tebal={6} label={layar.kemiripan === null ? "Kemiripan belum terbaca" : `Kemiripan ${layar.kemiripan}`} />
             </div>
           )}
-          {tahap === "menari" && layar.kartu && <KartuSalah kartu={layar.kartu} />}
+          {tahap === "menari" && layar.kartu && <KartuSalah kartu={layar.kartu} posisi="lapis" />}
           {tahap === "menari" && !layar.kartu && (
-            <BalonPetunjuk petunjuk={layar.petunjuk} kemiripan={layar.kemiripan} terpotong={layar.terpotong} kurangJelas={layar.kurangJelas} />
+            <BalonPetunjuk petunjuk={layar.petunjuk} kemiripan={layar.kemiripan} terpotong={layar.terpotong} kurangJelas={layar.kurangJelas} posisi="lapis" />
           )}
         </KameraView>
+
+        {/* Ponsel: petunjuk di bawah kamera dengan huruf besar, supaya tidak menutupi tubuh dan terbaca dari jauh. */}
+        {tahap === "persiapan" && layar.langkah && <PapanPersiapan langkah={layar.langkah} gestur={layar.gestur} posisi="bawah" />}
+        {tahap === "menari" && layar.kartu && <KartuSalah kartu={layar.kartu} posisi="bawah" />}
+        {tahap === "menari" && !layar.kartu && (
+          <BalonPetunjuk petunjuk={layar.petunjuk} kemiripan={layar.kemiripan} terpotong={layar.terpotong} kurangJelas={layar.kurangJelas} posisi="bawah" />
+        )}
 
         {hitung !== null && (
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center rounded-2xl bg-black/55 text-white backdrop-blur-[2px]">
@@ -1017,8 +1049,8 @@ function RuangLatihan({ kelas, contoh, data }: { kelas: KelasTari; contoh: boole
 /** Panduan kunjungan pertama: tiga hal yang paling menentukan apakah AI bisa membaca murid dengan benar. */
 function PanduanAwal({ tutup }: { tutup: () => void }) {
   const langkah = [
-    ["Letakkan laptop", "Setinggi pinggang atau dada, kamera menghadap Anda. Bersihkan lensa kamera."],
-    ["Mundur 2–3 langkah", `Kepala sampai kaki terlihat, tubuh minimal ${Math.round(KUALITAS.tubuhMin * 100)}% tinggi layar. Daftar cek di kamera memberi tahu bila sudah pas.`],
+    ["Letakkan laptop atau ponsel", "Setinggi pinggang atau dada, kamera menghadap Anda. Bersihkan lensa kamera."],
+    ["Mundur 2–3 langkah", `Kepala sampai kaki terlihat, tubuh minimal ${Math.round(KUALITAS.tubuhMin * 100)}% tinggi layar. Ngigel memberi tahu, dengan tulisan besar dan suara, bila sudah pas.`],
     ["Cahaya dari depan", "Nyalakan lampu di depan Anda; jangan membelakangi jendela atau lampu terang."],
   ] as const;
   return (
@@ -1054,23 +1086,63 @@ function PanduanAwal({ tutup }: { tutup: () => void }) {
  * Kartu kesalahan berulang: guru dan murid dibandingkan dalam bahasa sederhana, lalu satu perintah besar.
  * Menggantikan balon petunjuk selama tampil; video tetap berjalan (keputusan ketua 6 Nov).
  */
-function KartuSalah({ kartu }: { kartu: KartuKesalahan }) {
+/**
+ * Posisi petunjuk: "lapis" di atas kamera (layar lebar), atau "bawah" di bawah kamera dengan huruf besar
+ * (ponsel). Di ponsel, lapisan di atas kamera menutupi tubuh dan hurufnya terlalu kecil dari jarak menari
+ * (uji ketua dengan iPhone XR, 8 Nov 2026). Hanya satu versi yang terlihat di tiap ukuran layar.
+ */
+type PosisiPetunjuk = "lapis" | "bawah";
+
+function KartuSalah({ kartu, posisi }: { kartu: KartuKesalahan; posisi: PosisiPetunjuk }) {
+  const lapis = posisi === "lapis";
   return (
     <div
       role="alert"
       key={kartu.kunci}
-      className="absolute inset-x-2 bottom-2 animate-muncul rounded-2xl bg-white/95 p-3 text-tinta shadow-2xl ring-2 ring-merah-tua sm:inset-x-3 sm:bottom-3 sm:p-4"
+      className={
+        lapis
+          ? "absolute inset-x-2 bottom-2 animate-muncul rounded-2xl bg-white/95 p-3 text-tinta shadow-2xl ring-2 ring-merah-tua max-lg:hidden sm:inset-x-3 sm:bottom-3 sm:p-4"
+          : "animate-muncul rounded-2xl bg-white p-4 text-tinta shadow-lg ring-2 ring-merah-tua lg:hidden"
+      }
     >
-      <p className="text-xs font-extrabold uppercase tracking-wide text-merah-tua sm:text-sm">⚠ {kartu.judul}</p>
+      <p className={`font-extrabold uppercase tracking-wide text-merah-tua ${lapis ? "text-xs sm:text-sm" : "text-sm"}`}>⚠ {kartu.judul}</p>
       {kartu.guru && kartu.anda && (
-        <dl className="mt-1 grid grid-cols-[auto_1fr] gap-x-2 text-sm font-semibold leading-snug sm:text-base">
+        <dl className={`mt-1 grid grid-cols-[auto_1fr] gap-x-2 font-semibold leading-snug ${lapis ? "text-sm sm:text-base" : "text-lg"}`}>
           <dt className="font-extrabold text-hutan">Guru:</dt>
           <dd>{kartu.guru}</dd>
           <dt className="font-extrabold text-merah-tua">Anda:</dt>
           <dd>{kartu.anda}</dd>
         </dl>
       )}
-      <p className="mt-2 rounded-xl bg-pasir px-3 py-1.5 text-base font-extrabold sm:text-lg">→ {kartu.saran}</p>
+      <p className={`mt-2 rounded-xl bg-pasir px-3 py-1.5 font-extrabold ${lapis ? "text-base sm:text-lg" : "text-xl"}`}>→ {kartu.saran}</p>
+    </div>
+  );
+}
+
+/** Satu perintah persiapan yang besar, juga diucapkan pelatih suara (src/latihan/persiapan.ts). */
+function PapanPersiapan({ langkah, gestur, posisi }: { langkah: LangkahPersiapan; gestur: number; posisi: PosisiPetunjuk }) {
+  const lapis = posisi === "lapis";
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className={
+        lapis
+          ? "absolute inset-x-3 bottom-3 rounded-2xl bg-white/95 px-4 py-3 text-tinta shadow-xl max-lg:hidden"
+          : "rounded-2xl bg-white px-4 py-3 text-tinta shadow-lg ring-2 ring-kunyit/50 lg:hidden"
+      }
+    >
+      <p key={langkah.teks} className={`flex animate-muncul items-center gap-3 font-extrabold leading-snug ${lapis ? "text-lg" : "text-xl"}`}>
+        <span aria-hidden="true" className="text-3xl">
+          {langkah.ikon}
+        </span>
+        {langkah.teks}
+      </p>
+      {langkah.siap && (
+        <span className="mt-2 block h-3 overflow-hidden rounded-full bg-stone-200" aria-hidden="true">
+          <span className="block h-full rounded-full bg-kunyit" style={{ width: `${Math.round(gestur * 100)}%` }} />
+        </span>
+      )}
     </div>
   );
 }
@@ -1080,12 +1152,14 @@ function BalonPetunjuk({
   kemiripan,
   terpotong,
   kurangJelas,
+  posisi,
 }: {
   petunjuk: Petunjuk | null;
   kemiripan: number | null;
   /** Ada bagian tubuh di luar gambar. Kaki yang tertutup gerak (mis. berlutut) tidak dihitung. */
   terpotong: boolean;
   kurangJelas: MasalahKualitas | null;
+  posisi: PosisiPetunjuk;
 }) {
   let warna = "bg-green-500";
   let teks = "Bagus, pertahankan!";
@@ -1104,8 +1178,16 @@ function BalonPetunjuk({
     teks = "Ikuti gerak guru…";
   }
   return (
-    <p aria-live="polite" className="absolute inset-x-3 bottom-3 flex items-center gap-2.5 rounded-2xl bg-white/95 px-4 py-3 text-base font-extrabold text-tinta shadow-xl animate-muncul" key={teks}>
-      <span className={`h-3 w-3 shrink-0 rounded-full ${warna}`} aria-hidden="true" />
+    <p
+      aria-live="polite"
+      className={
+        posisi === "lapis"
+          ? "absolute inset-x-3 bottom-3 flex items-center gap-2.5 rounded-2xl bg-white/95 px-4 py-3 text-base font-extrabold text-tinta shadow-xl animate-muncul max-lg:hidden"
+          : "flex items-center gap-3 rounded-2xl bg-white px-4 py-3 text-xl font-extrabold leading-snug text-tinta shadow-lg ring-1 ring-stone-200 animate-muncul lg:hidden"
+      }
+      key={teks}
+    >
+      <span className={`shrink-0 rounded-full ${warna} ${posisi === "lapis" ? "h-3 w-3" : "h-5 w-5"}`} aria-hidden="true" />
       {teks}
     </p>
   );

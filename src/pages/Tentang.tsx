@@ -14,7 +14,7 @@ const BELUM = [
   "Video untuk kelas selain Tari Kreasi Janger (sementara memakai video contoh)",
   "Kalimat koreksi oleh model bahasa (LLM); sekarang kalimat disusun dari templat",
   "Kecepatan AI ±5 frame per detik dengan CPU; mode cepat (GPU) masih percobaan",
-  "Kalibrasi nilai dengan penari dan guru sungguhan (docs/09)",
+  "Kalibrasi nilai dengan penari dan guru sungguhan",
 ];
 
 export default function Tentang() {

@@ -5,6 +5,7 @@
 //   --skala 0.5             video diperkecil di tengah bingkai, seolah penari berdiri lebih jauh
 //   --filter "brightness(0.3)" atau "blur(2px)"   filter kanvas: ruangan gelap atau kamera buram
 //   --cermin                kiri–kanan dibalik, seolah murid meniru dengan sisi tertukar
+//   --potret                bingkai tegak 3:4 (tengah video dipotong), seperti kamera depan ponsel yang tegak
 import { closeSync, openSync, writeSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -23,6 +24,7 @@ const lebar = Number(arg.lebar ?? 640);
 const skala = Number(arg.skala ?? 1);
 const filter = typeof arg.filter === "string" ? arg.filter : "none";
 const cermin = arg.cermin !== undefined;
+const potret = arg.potret !== undefined;
 if (!(skala > 0 && skala <= 1)) {
   console.error("--skala harus di antara 0 dan 1");
   process.exit(1);
@@ -33,7 +35,16 @@ try {
   await tunggu(2500);
   await chrome.nilai(`(async () => { const v = document.querySelector('video'); v.pause();
     if (v.readyState < 1) await new Promise(r => v.addEventListener('loadedmetadata', r, { once: true }));
-    window.__k = document.createElement('canvas'); __k.width = ${lebar}; __k.height = Math.round(${lebar} * v.videoHeight / v.videoWidth / 2) * 2; return true; })()`);
+    window.__k = document.createElement('canvas');
+    if (${potret}) {
+      // Tegak 3:4: lebar keluaran = 3/4 tinggi; sumbernya potongan tengah video dengan rasio yang sama.
+      __k.height = ${lebar}; __k.width = Math.round(${lebar} * 0.75 / 2) * 2;
+      const sw = v.videoHeight * 0.75; window.__s = [(v.videoWidth - sw) / 2, 0, sw, v.videoHeight];
+    } else {
+      __k.width = ${lebar}; __k.height = Math.round(${lebar} * v.videoHeight / v.videoWidth / 2) * 2;
+      window.__s = [0, 0, v.videoWidth, v.videoHeight];
+    }
+    return true; })()`);
   const total = Math.round(lama * FPS);
   const fd = openSync(resolve(arg.keluar), "w");
   let byte = 0;
@@ -45,7 +56,7 @@ try {
         const c = __k.getContext('2d'); const w = __k.width * ${skala}, h = __k.height * ${skala};
         c.setTransform(1, 0, 0, 1, 0, 0); c.filter = 'none'; c.fillStyle = '#8c8a86'; c.fillRect(0, 0, __k.width, __k.height);
         if (${cermin}) c.setTransform(-1, 0, 0, 1, __k.width, 0);
-        c.filter = ${JSON.stringify(filter)}; c.drawImage(v, (__k.width - w) / 2, (__k.height - h) / 2, w, h);
+        c.filter = ${JSON.stringify(filter)}; c.drawImage(v, ...__s, (__k.width - w) / 2, (__k.height - h) / 2, w, h);
         hasil.push(__k.toDataURL('image/jpeg', 0.85).split(',')[1]);
       } return hasil; })()`);
     for (const b64 of daftar) {

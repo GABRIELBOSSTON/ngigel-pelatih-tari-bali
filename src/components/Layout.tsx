@@ -82,7 +82,8 @@ export default function Layout() {
         </span>
       </div>
 
-      <header className="sticky top-0 z-40 border-b border-stone-200/80 bg-white/90 backdrop-blur-md">
+      {/* Menempel di atas hanya di layar lebar; di ponsel kepala ikut tergulir agar studio latihan muat satu layar. */}
+      <header className="z-40 border-b border-stone-200/80 bg-white/90 backdrop-blur-md lg:sticky lg:top-0">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <Link to="/" aria-label="Ngigel, ke etalase" className="shrink-0">
             <Logo />

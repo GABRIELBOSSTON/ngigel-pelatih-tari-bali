@@ -452,7 +452,7 @@ function KartuHasil({ sesi, dibagikan = false, tidakTersimpan = false }: { sesi:
 
       <p className="rounded-2xl bg-pasir/70 p-4 text-xs text-stone-700">
         <strong>Cara nilai dihitung.</strong> Sudut sendi dan posisi tangan Anda dibandingkan dengan guru setelah tempo diselaraskan. Setiap selisih dibagi
-        toleransinya (15° untuk sudut tubuh, 25° untuk jari), lalu nilai = 100 × e<sup>−jarak/2</sup>. Nilai ini dari prototipe yang masih dikalibrasi (docs/09); pakai sebagai
+        toleransinya (15° untuk sudut tubuh, 25° untuk jari), lalu nilai = 100 × e<sup>−jarak/2</sup>. Nilai ini dari prototipe yang masih dikalibrasi; pakai sebagai
         panduan latihan, bukan pengganti guru. Hasil hanya tersimpan di peramban ini.
       </p>
     </div>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { gambarStickman, type WarnaBagian } from "../vision/gambarStickman";
 import { PESAN_KAMERA } from "../vision/kamera";
 import { ketajaman, rataKecerahan } from "../vision/kecerahan";
@@ -24,6 +24,11 @@ type Props = {
   /** Lapisan di atas kamera (skor, petunjuk). */
   children?: ReactNode;
   className?: string;
+  /**
+   * Di layar sempit (di bawah lg), tinggi panel dibatasi sekian persen tinggi layar (svh). Lebarnya
+   * menyesuaikan rasio kamera, jadi gambar tidak terpotong dan garis tetap tepat di atas tubuh.
+   */
+  batasTinggiHpSvh?: number;
 };
 
 // Pencerminan hanya di tampilan; data titik tetap anatomis (docs/04 bagian 3).
@@ -42,7 +47,7 @@ function pesanStatus(kamera: ReturnType<typeof useKamera>, visi: StatusVisi): st
   return null;
 }
 
-export default function KameraView({ saatHasil, saatStatusVisi, saatKecerahan, opsiVisi, children, className = "rounded-xl" }: Props) {
+export default function KameraView({ saatHasil, saatStatusVisi, saatKecerahan, opsiVisi, children, className = "rounded-xl", batasTinggiHpSvh }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const kanvasRef = useRef<HTMLCanvasElement>(null);
   const [rasio, setRasio] = useState(4 / 3);
@@ -116,9 +121,12 @@ export default function KameraView({ saatHasil, saatStatusVisi, saatKecerahan, o
   }, [statusKamera, saatKecerahan]);
 
   const pesan = pesanStatus(statusKamera, statusVisi);
+  // Lebar = min(lebar wadah, batas tinggi × rasio). Kelas Tailwind memakai variabel CSS ini.
+  const gaya = { aspectRatio: rasio, "--rasio": rasio, "--batas-hp": `${batasTinggiHpSvh ?? 100}svh` } as CSSProperties;
+  const batasHp = batasTinggiHpSvh ? "max-lg:mx-auto max-lg:w-[min(100%,calc(var(--batas-hp)*var(--rasio)))]" : "";
 
   return (
-    <div className={`relative w-full overflow-hidden bg-stone-900 ${className}`} style={{ aspectRatio: rasio }}>
+    <div className={`relative w-full overflow-hidden bg-stone-900 ${batasHp} ${className}`} style={gaya}>
       <video
         ref={videoRef}
         onLoadedMetadata={saatUkuranVideo}

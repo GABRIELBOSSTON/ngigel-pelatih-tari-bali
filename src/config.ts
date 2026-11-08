@@ -166,6 +166,18 @@ export const STUDIO = {
   jedaGantiPetunjukMs: 1500,
   /** Pelatih suara mengucapkan petunjuk paling sering setiap sekian milidetik. */
   jedaSuaraPetunjukMs: 3000,
+  /**
+   * Layar persiapan (src/latihan/persiapan.ts): perintah baru diucapkan paling cepat setiap gantiMs,
+   * perintah yang sama diulang setiap ulangMs bila murid belum bergerak. Uji ketua dengan iPhone XR
+   * (8 Nov 2026): tanpa suara, perintah "angkat kedua tangan" tidak terbaca dari jarak menari.
+   */
+  suaraPersiapan: { gantiMs: 4000, ulangMs: 15000 },
+  /**
+   * Di layar sempit (ponsel), tinggi panel kamera dibatasi agar video guru, kamera, dan petunjuk muat
+   * dalam satu layar. Kamera depan ponsel yang tegak memberi gambar 3:4, yang tanpa batas setinggi
+   * ±520 px pada layar 390 px.
+   */
+  tinggiKameraHpSvh: 40,
 } as const;
 
 /**

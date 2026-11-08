@@ -81,7 +81,7 @@ Halaman **Untuk Guru** mengubah video gerak menjadi pelajaran (deret gerak + seg
 | Frontend | React 19, TypeScript 7 (strict), Vite 8, Tailwind CSS 4, React Router 7, Zod |
 | AI di peramban | MediaPipe Tasks Vision 1.1.1 Holistic Landmarker, di Web Worker (WebAssembly) |
 | Suara | Web Speech API bawaan peramban |
-| Pengujian | Vitest (141 uji), uji ujung ke ujung dengan Chrome DevTools Protocol |
+| Pengujian | Vitest (149 uji), uji ujung ke ujung dengan Chrome DevTools Protocol |
 | CI / Hosting | GitHub Actions (typecheck, uji, build) · Vercel (situs statis) |
 
 Semua versi pustaka dikunci di `package-lock.json`.
@@ -107,12 +107,17 @@ Semua versi pustaka dikunci di `package-lock.json`.
 ### Bukti uji
 | Uji | Hasil |
 |---|---|
-| Uji otomatis | **141 uji** lolos (`npm run test`), dijalankan CI pada setiap push |
+| Uji otomatis | **149 uji** lolos (`npm run test`), dijalankan CI pada setiap push |
 | Ujung ke ujung (Chrome + kamera palsu berisi video tari; "murid" = penari guru) | Gerak benar **78–86** · terlambat 1,5 detik **75–83** (keterlambatan terukur 1,4 detik) · tarian lain **35–37** |
 | Kalibrasi sintetis (74 skenario dari video berlisensi terbuka) | Gerak mirip ≥ 86 · sengaja salah, median 48 · gerak lain ≤ 52 |
 | Kondisi kamera buruk (kamera palsu diperkecil, digelapkan, diburamkan, dicerminkan) | Jauh, gelap, buram: tidak diberi nilai yang salah, diganti saran kamera · murid kiri–kanan tertukar mendapat kartu "Kebalik" · penari identik tidak mendapat kartu palsu |
+| Perangkat nyata: iPhone XR di URL produksi, satu sesi 90 detik oleh ketua tim yang belum menguasai gerakannya (8 Nov 2026) | Izin kamera berjalan, tubuh terbaca di 100% frame, AI 4,2 deteksi/detik · skor total 47 (agem 66, tangkis 56, tangkep 41, tandang 4) · terlambat ±0,22 detik |
 
-Angka di atas **bukan akurasi**: penari uji sama dengan penari guru, dan kamera palsu tidak punya derau kamera sungguhan. Alat ujinya ada di `scripts/uji/` dan bisa diulang.
+Angka di atas **bukan akurasi**: penari uji otomatis sama dengan penari guru, dan kamera palsu tidak punya derau kamera sungguhan. Skor adalah indikator kemiripan dengan video guru, belum divalidasi guru tari. Alat ujinya ada di `scripts/uji/` dan bisa diulang.
+
+Uji iPhone XR menghasilkan dua perbaikan tampilan ponsel (8 Nov):
+- perintah persiapan ("Angkat kedua tangan di atas kepala untuk mulai") kini tampil besar dan diucapkan;
+- video guru, kamera, dan petunjuk dimuat dalam satu layar tanpa memotong video guru.
 
 ## 6. Architecture / Data Flow
 
@@ -154,7 +159,7 @@ npm run dev                    # buka http://localhost:5173
 
 | Perintah | Fungsi |
 |---|---|
-| `npm run test` | Menjalankan 141 uji otomatis |
+| `npm run test` | Menjalankan 149 uji otomatis |
 | `npm run typecheck` | Memeriksa tipe TypeScript |
 | `npm run build` | Build produksi ke `dist/` |
 | `npm run setup:model` | Mengunduh ulang model Holistic resmi (hanya bila `public/models/` kosong) |

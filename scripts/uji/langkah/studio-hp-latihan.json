@@ -1,0 +1,33 @@
+[
+ {
+  "url": "/latihan/tari-kreasi-janger?mulai=40&akhir=70",
+  "lebar": 390,
+  "tinggi": 844,
+  "tungguJs": "[...document.querySelectorAll('button')].some(b => b.textContent.includes('Mulai menari') && !b.disabled)",
+  "batasMs": 90000,
+  "potret": false,
+  "nama": "tutup_panduan",
+  "aksi": "(() => { const b = [...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Mengerti'); b?.click(); return { panduanDitutup: !!b }; })()"
+ },
+ {
+  "tunggu": 4000,
+  "nama": "hp_persiapan",
+  "aksi": "({ scrollOtomatis: Math.round(window.scrollY) })",
+  "ambil": "(() => { const terlihat = (el) => el && el.offsetParent !== null; const papan = [...document.querySelectorAll('[role=status]')].filter(terlihat).map(e => e.innerText); const kotak = (el) => { const r = el.getBoundingClientRect(); return { lebar: Math.round(r.width), tinggi: Math.round(r.height), atas: Math.round(r.top) }; }; const cam = document.querySelector('video[aria-label^=\"Kamera\"]'); const guru = document.querySelector('video[aria-label^=\"Video guru\"]'); return { papan, kamera: kotak(cam.parentElement), guru: kotak(guru.parentElement), rasioKamera: cam.videoWidth + 'x' + cam.videoHeight, daftarCekTerlihat: terlihat(document.querySelector('ul.absolute')) }; })()"
+ },
+ {
+  "nama": "klik_mulai",
+  "potret": false,
+  "aksi": "(() => { window.scrollTo(0, 0); [...document.querySelectorAll('button')].find(b => b.textContent.includes('Mulai menari')).click(); return { scrollSebelum: window.scrollY }; })()"
+ },
+ {
+  "tunggu": 2200,
+  "nama": "hp_hitung",
+  "ambil": "({ scrollY: Math.round(window.scrollY) })"
+ },
+ {
+  "tunggu": 10000,
+  "nama": "hp_menari",
+  "ambil": "(() => { const terlihat = (el) => el && el.offsetParent !== null; return { petunjuk: [...document.querySelectorAll('p[aria-live=polite]')].filter(terlihat).map(e => e.textContent), kartu: [...document.querySelectorAll('[role=alert]')].filter(terlihat).map(e => e.innerText), scrollY: Math.round(window.scrollY) }; })()"
+ }
+]
